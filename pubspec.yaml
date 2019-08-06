@@ -1,7 +1,7 @@
 name: setwallpaper
 description: A wallpaper plugin
 version: 0.2
-author: Didier Levesque
+author: Didier Lévesque
 homepage: https://github.com/dlevesque1980
 
 environment:
