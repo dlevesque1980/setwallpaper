@@ -2,7 +2,6 @@ package didisoft.setwallpaper
 
 
 import android.app.WallpaperManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import io.flutter.plugin.common.MethodCall
@@ -11,13 +10,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import kotlinx.coroutines.*
-import java.io.BufferedInputStream
 import java.io.IOException
-import java.io.InputStream
 import java.net.URL
-import android.content.ContentValues.TAG
-
-
 
 
 class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
@@ -54,18 +48,18 @@ class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
         val wm = WallpaperManager.getInstance(registrar.context())
 
         try {
-                val result = GlobalScope.async {
-                    return@async BitmapFactory.decodeStream(URL(url).openConnection().getInputStream())
 
-                }
+            var scope = CoroutineScope(Dispatchers.Main)
+            scope.launch {
+                    val result = async(Dispatchers.IO) {
+                        return@async BitmapFactory.decodeStream(URL(url).openConnection().getInputStream())
+                    }
 
-                runBlocking{
-                    val bitmap = result.await()
                     when {
-                        system && lock -> wm.setBitmap(bitmap)
-                        system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
-                        lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
-                        else -> wm.setBitmap(bitmap)
+                        system && lock -> wm.setBitmap(result.await())
+                        system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM)
+                        lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_LOCK)
+                        else -> wm.setBitmap(result.await())
                     }
                 }
 
