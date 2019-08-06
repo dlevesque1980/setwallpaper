@@ -4,10 +4,8 @@ A wallpaper plugin
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+This plugin allow to change de wallpaper and includes platform-specific implementation code for
+Android only. (iOS does not support wallpaper change by external app.)
 
 For help getting started with Flutter, view our 
 [online documentation](https://flutter.dev/docs), which offers tutorials, 
