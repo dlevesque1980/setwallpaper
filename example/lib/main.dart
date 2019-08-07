@@ -20,21 +20,53 @@ class _MyAppState extends State<MyApp> {
     //initPlatformState();
   }
 
+
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> setWallpapers() async {
+  Future<void> setSystemWallpaper() async {
     String message;
     // Platform messages may fail, so we use a try/catch PlatformException.
+
     try {
       message = await Setwallpaper.setSystemWallpaper('https://www.bing.com/sa/simg/hpb/LaDigue_EN-CA1115245085_1080x1920.jpg');
+      message = "System wallpaper set";
     } on PlatformException {
       message = 'Failed to get platform version.';
     }
 
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _message = message;
+    });
+  }
+  Future<void> setLockedWallpaper() async {
+    String message;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+
     try {
       message = await Setwallpaper.setLockedWallpaper('https://www.bing.com/sa/simg/hpb/LaDigue_EN-CA1115245085_1080x1920.jpg');
+      message = "System wallpaper set";
     } on PlatformException {
       message = 'Failed to get platform version.';
     }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _message = message;
+    });
+  }  
+  
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> setWallpapers() async {
+    String message;
+    // Platform messages may fail, so we use a try/catch PlatformException.
 
     try {
       message = await Setwallpaper.setBothWallpaper('https://www.bing.com/sa/simg/hpb/LaDigue_EN-CA1115245085_1080x1920.jpg');
@@ -62,7 +94,9 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: <Widget>[
-            Center(child: RaisedButton(onPressed: () => setWallpapers(), child: Text("SetWallpaper"))),
+            Center(child: RaisedButton(onPressed: () => setSystemWallpaper(), child: Text("SetSystemWallpaper"))),
+			Center(child: RaisedButton(onPressed: () => setLockedWallpaper(), child: Text("SetLockedWallpaper"))),
+			Center(child: RaisedButton(onPressed: () => setWallpapers(), child: Text("SetBothWallpapers"))),
             Center(
               child: new Text('$_message\n'),
             ),
