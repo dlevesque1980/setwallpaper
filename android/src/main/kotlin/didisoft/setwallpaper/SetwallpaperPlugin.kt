@@ -26,48 +26,56 @@ class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
 
 
     override fun onMethodCall(call: MethodCall, result: Result): Unit {
+        var scope = CoroutineScope(Dispatchers.Main)
+        var url: String? = null
+        var locked: Boolean = false
+        var system: Boolean = false
         when {
-            call.method.equals("setsystemwallpaper") -> {
-                val url: String = call.argument("url")!!
-                return setWallpaper(url, result, true, false)
+
+            call.method == "setsystemwallpaper" || call.method == "setlockedwallpaper" || call.method == "setbothwallpaper"  -> {
+                url = call.argument("url")!!
+                system = call.argument("system")!!
+                locked = call.argument("locked")!!
+
+                scope.launch {
+                    val wallSet = setWallpaper(url, system, locked)
+                    when{
+                        wallSet -> result.success("Wallpaper set successfully!")
+                        else -> result.error("An error occur setting wallpaper...",null,null)
+                    }
+                }
             }
-            call.method.equals("setlockedwallpaper") -> {
-                val url: String = call.argument("url")!!
-                return setWallpaper(url, result, false, true)
-            }
-            call.method.equals("setbothwallpaper") -> {
-                val url: String = call.argument("url")!!
-                return setWallpaper(url, result, true, true)
-            }
-            else -> result.notImplemented()
+
+            else -> return result.notImplemented()
         }
+
+
     }
 
 
-    private fun setWallpaper(url: String, result: Result, system: Boolean, lock: Boolean) {
+    private suspend fun setWallpaper(url: String, system: Boolean, lock: Boolean): Boolean = coroutineScope {
         val wm = WallpaperManager.getInstance(registrar.context())
 
         try {
 
-            var scope = CoroutineScope(Dispatchers.Main)
-            scope.launch {
-                    val result = async(Dispatchers.IO) {
-                        return@async BitmapFactory.decodeStream(URL(url).openConnection().getInputStream())
-                    }
+            val result = async(Dispatchers.IO) {
+                return@async BitmapFactory.decodeStream(URL(url).openConnection().getInputStream())
+            }
 
-                    when {
-                        system && lock -> wm.setBitmap(result.await())
-                        system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM)
-                        lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_LOCK)
-                        else -> wm.setBitmap(result.await())
-                    }
-                }
+            when {
+                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM)
+                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_LOCK)
+                else -> wm.setBitmap(result.await())
+            }
 
         } catch (e: IOException) {
-
+            e.printStackTrace()
+            return@coroutineScope false
+            //result.error("An error occur setting the wallpaper...", null, null)
         }
 
-        result.success("Wallpaper set successfully!");
+        return@coroutineScope true
     }
 
 }
