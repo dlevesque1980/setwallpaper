@@ -1,11 +1,10 @@
 name: setwallpaper
 description: A wallpaper plugin
 version: 0.2.0
-author: Didier Lévesque
 homepage: https://github.com/dlevesque1980
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
