@@ -4,26 +4,30 @@ package didisoft.setwallpaper
 import android.app.WallpaperManager
 import android.graphics.BitmapFactory
 import android.os.Build
+
+import androidx.annotation.NonNull
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
+import android.content.Context
+
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.net.URL
 
+class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
-class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
-    companion object {
-        @JvmStatic
-        fun registerWith(registrar: Registrar): Unit {
-            val channel = MethodChannel(registrar.messenger(), "didisoft.wallpaper")
-            channel.setMethodCallHandler(SetwallpaperPlugin(registrar))
+    private lateinit var channel : MethodChannel
+    private lateinit var context : Context
 
-        }
+    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "didisoft.wallpaper")
+        channel.setMethodCallHandler(this)
+        context = flutterPluginBinding.applicationContext
     }
-
 
     override fun onMethodCall(call: MethodCall, result: Result): Unit {
         var scope = CoroutineScope(Dispatchers.Main)
@@ -54,7 +58,7 @@ class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
 
 
     private suspend fun setWallpaper(url: String, system: Boolean, lock: Boolean): Boolean = coroutineScope {
-        val wm = WallpaperManager.getInstance(registrar.context())
+        val wm = WallpaperManager.getInstance(context)
 
         try {
 
@@ -76,6 +80,11 @@ class SetwallpaperPlugin(private val registrar: Registrar) : MethodCallHandler {
         }
 
         return@coroutineScope true
+    }
+
+
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
     }
 
 }
