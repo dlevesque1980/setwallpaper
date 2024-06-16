@@ -1,10 +1,11 @@
 name: setwallpaper
 description: A wallpaper plugin
-version: 0.3.0
+version: 0.4.0
 homepage: https://github.com/dlevesque1980
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=3.4.3 <4.0.0'
+  flutter: ">=3.22.2"
 
 dependencies:
   flutter:
@@ -18,14 +19,22 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
+dependency_overrides:
+executables:
+publish_to:
+documentation:
+issue_tracker:
+repository:
 flutter:
   # This section identifies this Flutter project as a plugin project.
   # The androidPackage and pluginClass identifiers should not ordinarily
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
-    androidPackage: didisoft.setwallpaper
-    pluginClass: SetwallpaperPlugin
+    platforms:
+      android:
+        package: didisoft.setwallpaper
+        pluginClass: SetwallpaperPlugin  
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
