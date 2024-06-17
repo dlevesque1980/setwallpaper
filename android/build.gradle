@@ -2,7 +2,6 @@ package android
 
 group 'didisoft.setwallpaper'
 version '1.0-SNAPSHOT'
-namespace 'didisoft.setwallpaper'
 rootProject.allprojects {
     repositories {
         google()
@@ -14,7 +13,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    namespace 'didisoft.setwallpaper'
+    compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
