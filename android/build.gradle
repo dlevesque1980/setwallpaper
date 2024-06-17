@@ -2,7 +2,7 @@ package android
 
 group 'didisoft.setwallpaper'
 version '1.0-SNAPSHOT'
-
+namespace 'didisoft.setwallpaper'
 rootProject.allprojects {
     repositories {
         google()
