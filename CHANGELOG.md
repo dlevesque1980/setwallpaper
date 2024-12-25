@@ -3,3 +3,5 @@
 * TODO: Describe initial release.
 ## 0.4.0
 update to flutter 3.22.4
+## 0.5.0 
+update to flutter 3.27.1

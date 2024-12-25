@@ -1,19 +1,29 @@
-import 'package:flutter/services.dart' show MethodCall, MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:setwallpaper/setwallpaper.dart';
+import 'package:setwallpaper/setwallpaper_platform_interface.dart';
+import 'package:setwallpaper/setwallpaper_method_channel.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+class MockSetwallpaperPlatform
+    with MockPlatformInterfaceMixin
+    implements SetwallpaperPlatform {
+
+  @override
+  Future<String?> getPlatformVersion() => Future.value('42');
+}
 
 void main() {
-  const MethodChannel channel = MethodChannel('setwallpaper');
+  final SetwallpaperPlatform initialPlatform = SetwallpaperPlatform.instance;
 
-  setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
-    });
+  test('$MethodChannelSetwallpaper is the default instance', () {
+    expect(initialPlatform, isInstanceOf<MethodChannelSetwallpaper>());
   });
 
-  tearDown(() {
-    channel.setMockMethodCallHandler(null);
+  test('getPlatformVersion', () async {
+    Setwallpaper setwallpaperPlugin = Setwallpaper();
+    MockSetwallpaperPlatform fakePlatform = MockSetwallpaperPlatform();
+    SetwallpaperPlatform.instance = fakePlatform;
+
+    expect(await setwallpaperPlugin.getPlatformVersion(), '42');
   });
-
-
 }
