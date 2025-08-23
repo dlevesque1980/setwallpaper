@@ -32,6 +32,7 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: Result): Unit {
         var scope = CoroutineScope(Dispatchers.Main)
         var url: String? = null
+        var bytes: ByteArray? = null
         var locked: Boolean = false
         var system: Boolean = false
         when {
@@ -43,6 +44,20 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
                 scope.launch {
                     val wallSet = setWallpaper(url, system, locked)
+                    when{
+                        wallSet -> result.success("Wallpaper set successfully!")
+                        else -> result.error("An error occur setting wallpaper...",null,null)
+                    }
+                }
+            }
+
+            call.method == "setsystemwallpaperbytes" || call.method == "setlockedwallpaperbytes" || call.method == "setbothwallpaperbytes"  -> {
+                bytes = call.argument("bytes")!!
+                system = call.argument("system")!!
+                locked = call.argument("locked")!!
+
+                scope.launch {
+                    val wallSet = setWallpaperFromBytes(bytes, system, locked)
                     when{
                         wallSet -> result.success("Wallpaper set successfully!")
                         else -> result.error("An error occur setting wallpaper...",null,null)
@@ -77,6 +92,34 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
             e.printStackTrace()
             return@coroutineScope false
             //result.error("An error occur setting the wallpaper...", null, null)
+        }
+
+        return@coroutineScope true
+    }
+
+    private suspend fun setWallpaperFromBytes(bytes: ByteArray, system: Boolean, lock: Boolean): Boolean = coroutineScope {
+        val wm = WallpaperManager.getInstance(context)
+
+        try {
+            val result = async(Dispatchers.IO) {
+                return@async BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            }
+
+            val bitmap = result.await()
+            if (bitmap == null) {
+                return@coroutineScope false
+            }
+
+            when {
+                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
+                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
+                else -> wm.setBitmap(bitmap)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@coroutineScope false
         }
 
         return@coroutineScope true

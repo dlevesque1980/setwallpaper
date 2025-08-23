@@ -15,7 +15,6 @@ class Setwallpaper {
 
   Future<String> setSystemWallpaper(String url) async {
     final String? message = await methodChannel.invokeMethod('setsystemwallpaper',{'url': url, 'system': true, 'locked': false});
-    print('the value: $message');
     return message!;
   }
 
@@ -26,6 +25,22 @@ class Setwallpaper {
 
   Future<String> setBothWallpaper(String url) async {
     final String? message = await methodChannel.invokeMethod('setbothwallpaper',{'url': url, 'system': true, 'locked': true});
+    return message!;
+  }
+
+  // Nouvelles méthodes pour les bytes
+  Future<String> setSystemWallpaperFromBytes(Uint8List bytes) async {
+    final String? message = await methodChannel.invokeMethod('setsystemwallpaperbytes',{'bytes': bytes, 'system': true, 'locked': false});
+    return message!;
+  }
+
+  Future<String> setLockedWallpaperFromBytes(Uint8List bytes) async {
+    final String? message = await methodChannel.invokeMethod('setlockedwallpaperbytes',{'bytes': bytes, 'system': false, 'locked': true});
+    return message!;
+  }
+
+  Future<String> setBothWallpaperFromBytes(Uint8List bytes) async {
+    final String? message = await methodChannel.invokeMethod('setbothwallpaperbytes',{'bytes': bytes, 'system': true, 'locked': true});
     return message!;
   }
 }

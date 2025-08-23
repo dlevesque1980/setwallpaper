@@ -1,29 +1,60 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:setwallpaper/setwallpaper.dart';
-import 'package:setwallpaper/setwallpaper_platform_interface.dart';
-import 'package:setwallpaper/setwallpaper_method_channel.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-class MockSetwallpaperPlatform
-    with MockPlatformInterfaceMixin
-    implements SetwallpaperPlatform {
-
-  @override
-  Future<String?> getPlatformVersion() => Future.value('42');
-}
+import 'dart:typed_data';
 
 void main() {
-  final SetwallpaperPlatform initialPlatform = SetwallpaperPlatform.instance;
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('$MethodChannelSetwallpaper is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelSetwallpaper>());
+  const MethodChannel channel = MethodChannel('didisoft.wallpaper');
+
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (MethodCall methodCall) async {
+        return 'Wallpaper set successfully!';
+      },
+    );
   });
 
-  test('getPlatformVersion', () async {
-    Setwallpaper setwallpaperPlugin = Setwallpaper();
-    MockSetwallpaperPlatform fakePlatform = MockSetwallpaperPlatform();
-    SetwallpaperPlatform.instance = fakePlatform;
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+  });
 
-    expect(await setwallpaperPlugin.getPlatformVersion(), '42');
+  group('Setwallpaper URL methods', () {
+    test('setSystemWallpaper', () async {
+      final result = await Setwallpaper.instance.setSystemWallpaper('https://example.com/image.jpg');
+      expect(result, 'Wallpaper set successfully!');
+    });
+
+    test('setLockedWallpaper', () async {
+      final result = await Setwallpaper.instance.setLockedWallpaper('https://example.com/image.jpg');
+      expect(result, 'Wallpaper set successfully!');
+    });
+
+    test('setBothWallpaper', () async {
+      final result = await Setwallpaper.instance.setBothWallpaper('https://example.com/image.jpg');
+      expect(result, 'Wallpaper set successfully!');
+    });
+  });
+
+  group('Setwallpaper Bytes methods', () {
+    test('setSystemWallpaperFromBytes', () async {
+      final bytes = Uint8List.fromList([1, 2, 3, 4, 5]);
+      final result = await Setwallpaper.instance.setSystemWallpaperFromBytes(bytes);
+      expect(result, 'Wallpaper set successfully!');
+    });
+
+    test('setLockedWallpaperFromBytes', () async {
+      final bytes = Uint8List.fromList([1, 2, 3, 4, 5]);
+      final result = await Setwallpaper.instance.setLockedWallpaperFromBytes(bytes);
+      expect(result, 'Wallpaper set successfully!');
+    });
+
+    test('setBothWallpaperFromBytes', () async {
+      final bytes = Uint8List.fromList([1, 2, 3, 4, 5]);
+      final result = await Setwallpaper.instance.setBothWallpaperFromBytes(bytes);
+      expect(result, 'Wallpaper set successfully!');
+    });
   });
 }
