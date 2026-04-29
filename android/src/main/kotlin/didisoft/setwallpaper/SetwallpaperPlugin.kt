@@ -17,6 +17,7 @@ import android.content.Context
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.net.URL
+import java.io.ByteArrayInputStream
 
 class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
@@ -78,14 +79,16 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
         try {
 
             val result = async(Dispatchers.IO) {
-                return@async BitmapFactory.decodeStream(URL(url).openConnection().getInputStream())
+                return@async URL(url).openConnection().getInputStream()
             }
+            
+            val inputStream = result.await()
 
             when {
-                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_SYSTEM)
-                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(result.await(), null, false, WallpaperManager.FLAG_LOCK)
-                else -> wm.setBitmap(result.await())
+                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM)
+                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_LOCK)
+                else -> wm.setStream(inputStream)
             }
 
         } catch (e: IOException) {
@@ -102,19 +105,16 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
         try {
             val result = async(Dispatchers.IO) {
-                return@async BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                return@async ByteArrayInputStream(bytes)
             }
 
-            val bitmap = result.await()
-            if (bitmap == null) {
-                return@coroutineScope false
-            }
+            val inputStream = result.await()
 
             when {
-                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
-                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
-                else -> wm.setBitmap(bitmap)
+                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM)
+                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_LOCK)
+                else -> wm.setStream(inputStream)
             }
 
         } catch (e: Exception) {
