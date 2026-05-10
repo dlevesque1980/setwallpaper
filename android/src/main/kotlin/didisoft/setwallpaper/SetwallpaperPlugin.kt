@@ -77,18 +77,19 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
         val wm = WallpaperManager.getInstance(context)
 
         try {
-
             val result = async(Dispatchers.IO) {
                 return@async URL(url).openConnection().getInputStream()
             }
             
             val inputStream = result.await()
 
-            when {
-                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM)
-                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_LOCK)
-                else -> wm.setStream(inputStream)
+            inputStream.use { stream ->
+                when {
+                    system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                    system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
+                    lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
+                    else -> wm.setStream(stream)
+                }
             }
 
         } catch (e: IOException) {
@@ -110,11 +111,13 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
             val inputStream = result.await()
 
-            when {
-                system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_SYSTEM)
-                lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(inputStream, null, true, WallpaperManager.FLAG_LOCK)
-                else -> wm.setStream(inputStream)
+            inputStream.use { stream ->
+                when {
+                    system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                    system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
+                    lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
+                    else -> wm.setStream(stream)
+                }
             }
 
         } catch (e: Exception) {
