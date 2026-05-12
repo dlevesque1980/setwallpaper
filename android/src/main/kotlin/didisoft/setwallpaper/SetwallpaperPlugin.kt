@@ -83,12 +83,14 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
             
             val inputStream = result.await()
 
-            inputStream.use { stream ->
-                when {
-                    system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                    system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
-                    lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
-                    else -> wm.setStream(stream)
+            withContext(Dispatchers.IO) {
+                inputStream.use { stream ->
+                    when {
+                        system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                        system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
+                        lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
+                        else -> wm.setStream(stream)
+                    }
                 }
             }
 
@@ -111,12 +113,14 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
             val inputStream = result.await()
 
-            inputStream.use { stream ->
-                when {
-                    system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
-                    system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
-                    lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
-                    else -> wm.setStream(stream)
+            withContext(Dispatchers.IO) {
+                inputStream.use { stream ->
+                    when {
+                        system && lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                        system && !lock && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_SYSTEM)
+                        lock && !system && Build.VERSION.SDK_INT >= 24 -> wm.setStream(stream, null, true, WallpaperManager.FLAG_LOCK)
+                        else -> wm.setStream(stream)
+                    }
                 }
             }
 
