@@ -78,7 +78,12 @@ class SetwallpaperPlugin() : FlutterPlugin, MethodCallHandler {
 
         try {
             val result = async(Dispatchers.IO) {
-                return@async URL(url).openConnection().getInputStream()
+                if (url.startsWith("file://")) {
+                    val path = url.substring(7)
+                    java.io.File(path).inputStream()
+                } else {
+                    URL(url).openConnection().getInputStream()
+                }
             }
             
             val inputStream = result.await()
